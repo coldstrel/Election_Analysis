@@ -10,6 +10,12 @@ total_votes = 0
 # Candidate options and candidate votes.
 candidate_options = []
 candidate_votes = {}
+# Initialize a county list
+county_options = []
+county_votes = {}
+# Step two, initialize variables
+largest_turnout_county = 0
+votes_lt_county = 0
 # Track the winning candidate, vote count, and percentage.
 winning_candidate = ""
 winning_count = 0
@@ -25,6 +31,8 @@ with open(file_to_load) as election_data:
         total_votes += 1
         # Get the candidate name from each row.
         candidate_name = row[2]
+        # Get the county name from each row
+        county_name = row[1]
         # If the candidate does not match any existing candidate, add the
         # the candidate list.
         if candidate_name not in candidate_options:
@@ -32,8 +40,13 @@ with open(file_to_load) as election_data:
             candidate_options.append(candidate_name)
             # And begin tracking that candidate's voter count.
             candidate_votes[candidate_name] = 0
+        # If county name is not in the list, add the county name to the list
+        if county_name not in county_options:
+            county_options.append(county_name)
+            county_votes[county_name] = 0
         # Add a vote to that candidate's count.
         candidate_votes[candidate_name] += 1
+        county_votes[county_name] += 1
 
 # Save the results to our text file.
 with open(file_to_save, "w") as txt_file:
@@ -46,6 +59,17 @@ with open(file_to_save, "w") as txt_file:
     print(election_results, end="")
     # After printing the final vote count to the terminal save the final vote count to the text file.
     txt_file.write(election_results)
+    
+    for county_name in county_votes:
+        c_votes = county_votes[county_name]
+        cv_percentage = float(c_votes) / float(total_votes) * 100
+        print(f"county name {county_name}, county votes {c_votes} percentage {cv_percentage:.1f}%")
+        # Determine which county won
+        if(c_votes > largest_turnout_county) and (cv_percentage > votes_lt_county):
+            largest_turnout_county = c_votes
+            votes_lt_county = cv_percentage
+    print(f"largest county {largest_turnout_county } \nlargest percentage county{votes_lt_county}")
+        
     for candidate_name in candidate_votes:
         # Retrieve vote count and percentage.
         votes = candidate_votes[candidate_name]
